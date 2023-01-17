@@ -1,4 +1,5 @@
 import express, { Application, json, urlencoded } from 'express'
+import defaultRoute from './routes/default.route'
 import notifyRoute from './routes/notify.route'
 
 class App {
@@ -17,6 +18,7 @@ class App {
 
 	configureRoutes() {
 		this.app = notifyRoute.configure(this.app)
+		this.app = defaultRoute.configure(this.app)
 	}
 }
 
