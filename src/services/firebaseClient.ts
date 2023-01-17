@@ -54,9 +54,8 @@ export class FirebaseClient {
 			token: options.sendToSpecificDeviceToken,
 		} as admin.messaging.Message
 
-		console.log(messageData.data)
 		const response = await this.firebaseClient.messaging().send(messageData)
-		console.log(response)
+		
 		return response
 	}
 }
