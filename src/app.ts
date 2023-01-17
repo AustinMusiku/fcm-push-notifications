@@ -1,6 +1,7 @@
 import express, { Application, json, urlencoded } from 'express'
 import defaultRoute from './routes/default.route'
 import notifyRoute from './routes/notify.route'
+import cors from 'cors'
 
 class App {
 	app: Application
@@ -14,6 +15,11 @@ class App {
 	configureMiddlewares() {
 		this.app.use(json())
 		this.app.use(urlencoded({ extended: false }))
+		this.app.use(cors({
+			origin: '*',
+			credentials: true,
+			optionSuccessStatus: 200,
+		}))
 	}
 
 	configureRoutes() {
