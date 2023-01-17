@@ -15,7 +15,7 @@ export class FirebaseClient {
 		? admin.initializeApp({
 				credential: admin.credential.cert({
 					clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-					privateKey: JSON.parse(process.env.FIREBASE_PRIVATE_KEY).FIREBASE_PRIVATE_KEY,
+					privateKey: process.env.FIREBASE_PRIVATE_KEY,
 					projectId: process.env.FIREBASE_PROJECT_ID,
 				}),
 				serviceAccountId: process.env.FIREBASE_CLIENT_EMAIL,
@@ -54,8 +54,9 @@ export class FirebaseClient {
 			token: options.sendToSpecificDeviceToken,
 		} as admin.messaging.Message
 
+		console.log(messageData.data)
 		const response = await this.firebaseClient.messaging().send(messageData)
-
+		console.log(response)
 		return response
 	}
 }

@@ -11,10 +11,12 @@ interface SendNotificationBody {
 
 class NotifyController {
 	public async notifyUser(req: Request, res: Response) {
+		console.log('notifyUser hit')
 		const { title, body, sendToSpecificDeviceToken, gameID } =
 			req.body as SendNotificationBody
 
 		try {
+			console.log('Sending notification...')
 			const response = await new FirebaseClient().sendNotification(
 				{ title, body },
 				{ sendToSpecificDeviceToken, gameID }
