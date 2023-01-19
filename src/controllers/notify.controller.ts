@@ -4,20 +4,20 @@ import { FirebaseClient } from '../services/firebaseClient'
 interface SendNotificationBody {
 	title: string
 	body: string
-	imageUrl?: string
 	sendToSpecificDeviceToken?: string
 	gameID: string
+	opponent: string
 }
 
 class NotifyController {
 	public async notifyUser(req: Request, res: Response) {
-		const { title, body, sendToSpecificDeviceToken, gameID } =
+		const { title, body, sendToSpecificDeviceToken, gameID, opponent } =
 			req.body as SendNotificationBody
 
 		try {
 			const response = await new FirebaseClient().sendNotification(
 				{ title, body },
-				{ sendToSpecificDeviceToken, gameID }
+				{ sendToSpecificDeviceToken, gameID, opponent }
 			)
 
 			if (response) {

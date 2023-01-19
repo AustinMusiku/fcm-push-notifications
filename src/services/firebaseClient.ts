@@ -7,7 +7,8 @@ interface Message {
 
 interface SendMessageOptions {
 	sendToSpecificDeviceToken?: string
-	gameID?: string
+	opponent: string
+	gameID: string
 }
 
 export class FirebaseClient {
@@ -25,30 +26,18 @@ export class FirebaseClient {
 	async sendNotification(message: Message, options: SendMessageOptions) {
 		const messageData = {
 			data: {
-				click_action: `https://xoisland.up.railway.app/multiplayer?mode=hosted&gameId=${options.gameID}`,
+				link: `https://xoisland.up.railway.app/multiplayer?mode=hosted&opponent=${options.opponent}&gameId=${options.gameID}`,
 			},
 			notification: {
 				title: message.title,
 				body: message.body,
 			},
-			android: {
-				priority: 'high',
-				notification: {
-					priority: 'high',
-					color: '#009FE3',
-					visibility: 'public',
-					ticker: 'Match invite',
-					icon: 'https://xoisland.up.railway.app/maskable_icon.png',
-					clickAction: `https://xoisland.up.railway.app/multiplayer?mode=hosted&gameId=${options.gameID}`,
-				},
-			},
 			webpush: {
 				notification: {
 					icon: 'https://xoisland.up.railway.app/maskable_icon.png',
-					clickAction: `https://xoisland.up.railway.app/multiplayer?mode=hosted&gameId=${options.gameID}`,
 				},
 				fcmOptions: {
-					link: `https://xoisland.up.railway.app/multiplayer?mode=hosted&gameId=${options.gameID}`,
+					link: `https://xoisland.up.railway.app/multiplayer?mode=hosted&opponent=${options.opponent}&gameId=${options.gameID}`,
 				},
 			},
 			token: options.sendToSpecificDeviceToken,
