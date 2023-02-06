@@ -4,20 +4,20 @@ import { createClient } from 'redis'
 const redisClient = createClient();
 
 export class WebSocketConnectionMap {
-	public static async addConnection(connectionId: string, connection: WebSocket) {
+	public static async addConnection(connectionId: string, connection: WebSocket): Promise<void> {
 		await redisClient.set(connectionId, JSON.stringify(connection));
 	}
 	
-	public static async removeConnection(connectionId: string) {
+	public static async removeConnection(connectionId: string): Promise<void>{
 		await redisClient.del(connectionId);
 	}
 	
-	public static async getConnection(connectionId: string) {
+	public static async getConnection(connectionId: string): Promise<WebSocket>{
 		const connection = await redisClient.get(connectionId);
 		return connection ? JSON.parse(connection) : null;
 	}
 	
-	public static async checkConnection(connectionId: string) {
+	public static async checkConnection(connectionId: string): Promise<boolean> {
 		const connectionExists = await redisClient.exists(connectionId);
 		return connectionExists === 1;
 	}
