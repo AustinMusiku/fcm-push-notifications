@@ -1,25 +1,28 @@
 import { RawData, WebSocket } from 'ws';
+import { createClient } from 'redis'
 
-// map of all connections
+const redisClient = createClient();
+
 export class WebSocketConnectionMap {
-	private _connections: Map<string, WebSocket>;
-
-	constructor() {
-		this._connections = new Map<string, WebSocket>();
+	public static async addConnection(connectionId: string, connection: WebSocket) {
+		await redisClient.set(connectionId, JSON.stringify(connection));
 	}
-
-	public addConnection(connectionId: string, connection: WebSocket) {
-		this._connections.set(connectionId, connection);
+	
+	public static async removeConnection(connectionId: string) {
+		await redisClient.del(connectionId);
 	}
-
-	public removeConnection(connectionId: string) {
-		this._connections.delete(connectionId);
+	
+	public static async getConnection(connectionId: string) {
+		const connection = await redisClient.get(connectionId);
+		return connection ? JSON.parse(connection) : null;
 	}
-
-	public getConnection(connectionId: string) {
-		return this._connections.get(connectionId);
+	
+	public static async checkConnection(connectionId: string) {
+		const connectionExists = await redisClient.exists(connectionId);
+		return connectionExists === 1;
 	}
 }
+
 
 export class WebSocketConnection {
 	private _connectionId: string;
@@ -28,43 +31,55 @@ export class WebSocketConnection {
 	private _TIMEOUT = 30000;
 
 
-	constructor(uuid: string, webSocket: WebSocket, clients: WebSocketConnectionMap) {
+	constructor(uuid: string, webSocket: WebSocket) {
 		this._connectionId = uuid;
 		this._connection = webSocket;
-		this.init(clients);
+		this.init();
 	}
 	
-	public init(clients: WebSocketConnectionMap){
-		clients.addConnection(this._connectionId, this._connection);
+	public init(){
+		WebSocketConnectionMap.addConnection(this._connectionId, this._connection);
 		
 		this._connection.on('message', (data: RawData) => {
 			const message = JSON.parse(data.toString())
 
 			switch (message.method) {
-				case 'join':
+				case 'join': 
+					// player wants to join a game
 					this.handleJoin(message)
 					break
+
 				case 'join-cancel':
+					// player cancels joining a game 
 					this.handleCancel(message)
 					break
-				case 'play':
+
+				case 'play': 
+					// player makes a move
 					this.handleMove(message)
 					break
+
 				case 'play-again':
+					// player requests a rematch
 					this.handlePlayAgain(message)
 					break
+
 				case 'play-again-prompt':
+					// player responds to a rematch request
 					this.handlePlayAgainResponse(message)
 					break
+
 				case 'abort-game':
+					// player aborts the game
 					this.handleAbortGame(message)
 					break
+
 				default:
 					break
 			}
 		})
 		this._connection.on('close', () => {
-			clients.removeConnection(this._connectionId);
+			WebSocketConnectionMap.removeConnection(this._connectionId);
 		});
 		this._connection.on('pong', () => {
 			this._isAlive = true;
@@ -74,10 +89,14 @@ export class WebSocketConnection {
 				return this._connection.terminate();
 			}
 			this._isAlive = false;
-			this._connection.ping(() => { });
+			this._connection.ping();
 		}, this._TIMEOUT);
 	}
 
+	/**
+	 * 
+	 * sends a message to a client
+	 */
 	public send(message: string): void {
 		this._connection.send(message);
 	}

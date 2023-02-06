@@ -3,8 +3,6 @@ import * as http from 'http';
 import { WebSocketConnection, WebSocketConnectionMap } from './webSocketConnection';
 import { v4 as uuidv4 } from 'uuid';
 
-export const clients = new WebSocketConnectionMap();
-
 export class webSocketServer {
 	private _webSocketServer: Server<WebSocket>;
 
@@ -16,7 +14,7 @@ export class webSocketServer {
 	public init() {
 		this._webSocketServer.on('connection', (webSocket: WebSocket) => {
 			const uuid = uuidv4();
-			const connection = new WebSocketConnection(uuid, webSocket, clients);
+			const connection = new WebSocketConnection(uuid, webSocket);
 			connection.send(JSON.stringify({ method: 'connect', clientId: uuid }))
 		});
 	}
