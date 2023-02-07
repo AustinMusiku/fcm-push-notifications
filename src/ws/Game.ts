@@ -38,6 +38,22 @@ export class ReadyRandomGames implements ReadyGames {
     }
 }
 
+export class ReadyHostedGames implements ReadyGames {
+    public async addGame(game: Game): Promise<number> {
+        return await redisClient.hSet('ready-hosted-games', game.getGameId(), JSON.stringify(game));
+    }
+
+    public async removeGame(gameId: string): Promise<number> {
+        return await redisClient.hDel('ready-hosted-games', gameId);
+    }
+
+    public async getGame(gameId: string): Promise<Game> {
+        const game = await redisClient.hGet('ready-hosted-games', gameId);
+        return game ? JSON.parse(game) : null;
+    }
+}
+
+
 export class Game {
     private _gameId: string;
     private _mode: string;
