@@ -1,6 +1,24 @@
 import { WebSocketConnectionMap } from "./webSocketConnection";
+import { createClient } from "redis";
 
-export default class Game {
+const redisClient = createClient();
+
+export class GamesMap {
+    private static async addGame(gameId: string, game: Game): Promise<void> {
+        await redisClient.set(gameId, JSON.stringify(game));
+    }
+
+    private static async removeGame(gameId: string): Promise<void> {
+        await redisClient.del(gameId);
+    }
+
+    private static async getGame(gameId: string): Promise<Game> {
+        const game = await redisClient.get(gameId);
+        return game ? JSON.parse(game) : null;
+    }
+}
+
+export class Game {
     private _gameId: string;
     private _mode: string;
     private _players: string[] = [];
@@ -9,10 +27,15 @@ export default class Game {
     private _cells: { [key: string]: string } = 
         { c1: '', c2: '', c3: '', c4: '', c5: '', c6: '', c7: '', c8: '', c9: '' };
 
-    constructor(gameId: string, mode: string,players?: string[]) {
+    constructor(gameId: string, mode: string, player: string) {
         this._gameId = gameId;
         this._mode = mode;
-        this._players = players;
+        this._players.push(player);
+    }
+
+    // getGameId
+    public getGameId(): string {
+        return this._gameId;
     }
 
     // getPlayers
@@ -33,6 +56,11 @@ export default class Game {
     // SetRematchTime
     public setRematchTime(time: number): void {
         this._rematchTime = time;
+    }
+
+    // addPlayer
+    public addPlayer(player: string): void {
+        this._players.push(player);
     }
 
     // flushGameState
