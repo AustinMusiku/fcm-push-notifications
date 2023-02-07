@@ -18,6 +18,26 @@ export class GamesMap {
     }
 }
 
+interface ReadyGames {
+    addGame(game: Game): void;
+    removeGame(gameId: string): Promise<number>;
+    getGame(gameId: string): Promise<Game>;
+}
+
+export class ReadyRandomGames implements ReadyGames {
+    public async addGame(game: Game): Promise<number> {
+        return await redisClient.rPush('ready-random-games', JSON.stringify(game));
+    }
+    public async removeGame(gameId: string): Promise<number> {
+        return await redisClient.lRem('ready-random-games', 0, gameId);
+    }
+
+    public async getGame(gameId: string): Promise<Game> {
+        const game = await redisClient.lPop('ready-random-games');
+        return game ? JSON.parse(game) : null;
+    }
+}
+
 export class Game {
     private _gameId: string;
     private _mode: string;
