@@ -5,7 +5,7 @@ const defaultController = new DefaultController()
 
 class DefaultRoute {
 	public configure(app: Application): Application {
-		app.route('/').get(defaultController.getEnvironmentVariables)
+		app.route('/').get(defaultController.getDefaultRoute)
 
 		return app
 	}
